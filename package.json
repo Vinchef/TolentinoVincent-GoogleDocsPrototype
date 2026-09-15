@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "postinstall": "cd server && npm install && cd ../client && npm install",
+    "postinstall": "cd server && npm install --include=dev && cd ../client && npm install --include=dev",
     "build": "cd server && npx prisma db push --accept-data-loss && node prisma/seed.js && cd ../client && npm run build"
   }
 }

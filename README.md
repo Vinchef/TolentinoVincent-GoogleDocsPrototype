@@ -25,12 +25,16 @@ A lightweight, full-stack document creation, editing, file importing, and docume
   - **SHARED WITH ME**: Documents shared with the active user, featuring an owner badge.
 - **Role-Based Permissions**:
   - **Owner**: Full access to view, edit, save, rename, share, and delete.
-  - **Shared User**: Allowed to view, edit, and save. Cannot rename, re-share, or delete.
+  - **Shared User**: Allowed to view, edit, save, and remove from shared list. Cannot rename or re-share.
   - **Other Users**: Access strictly denied (`403 Forbidden`).
 
-### 4. Data Persistence & Document Deletion (Step 4)
+### 4. Data Persistence & Consistent Document Management (Step 4 & UI Polish)
 - **Persistent Database**: All documents, formatted content, titles, and share records persist across browser refreshes and server restarts stored in local SQLite (`server/prisma/dev.db`).
-- **Document Deletion**: Owners can delete unneeded documents directly via the document header button (`🗑 Delete`) or sidebar trash icon. Cascades deletion of associated share records.
+- **Consistent Document Removal**:
+  - **Owners**: Click `🗑 Delete` in header or sidebar to permanently delete owned documents.
+  - **Shared Users**: Click `🗑 Remove` in header or sidebar to remove a document from their "SHARED WITH ME" list.
+- **Smooth Refresh Loading**: Eliminates initial loading flash on refresh with a smooth loading state.
+- **Clean Seeded Accounts**: Mock login screen strictly features seeded accounts (**Vincent** and **Alex**).
 
 ---
 

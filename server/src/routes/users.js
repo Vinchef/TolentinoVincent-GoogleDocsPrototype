@@ -7,6 +7,11 @@ const router = express.Router();
 router.get('/', async (req, res) => {
   try {
     const users = await prisma.user.findMany({
+      where: {
+        email: {
+          in: ['vincent@example.com', 'alex@example.com'],
+        },
+      },
       select: {
         id: true,
         name: true,

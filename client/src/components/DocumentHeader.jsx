@@ -71,7 +71,7 @@ export default function DocumentHeader({
       </div>
 
       <div className="doc-header-actions">
-        {isOwner && (
+        {isOwner ? (
           <>
             <button
               type="button"
@@ -89,6 +89,15 @@ export default function DocumentHeader({
               🗑 Delete
             </button>
           </>
+        ) : (
+          <button
+            type="button"
+            onClick={onDelete}
+            className="btn-secondary btn-delete"
+            title="Remove from your Shared list"
+          >
+            🗑 Remove
+          </button>
         )}
         <div className="save-status">
           {saveStatus === 'saving' && <span className="status-saving">Saving...</span>}

@@ -14,6 +14,7 @@ export default function App() {
   const [saveStatus, setSaveStatus] = useState('idle');
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [docsLoading, setDocsLoading] = useState(true);
   const [error, setError] = useState(null);
 
   // Fetch seeded users on mount
@@ -38,6 +39,7 @@ export default function App() {
 
   // Fetch documents for active user
   const fetchDocuments = useCallback(async (userId) => {
+    setDocsLoading(true);
     try {
       const res = await fetch(`/api/documents?userId=${userId}`);
       if (!res.ok) throw new Error('Failed to fetch documents');
@@ -49,15 +51,21 @@ export default function App() {
       console.error(err);
       setError('Could not load documents');
       return { owned: [], shared: [] };
+    } finally {
+      setDocsLoading(false);
     }
   }, []);
 
   useEffect(() => {
     if (currentUser) {
       fetchDocuments(currentUser.id).then((data) => {
-        // Automatically select the first owned document if available and none selected
-        if (data.owned.length > 0 && !activeDoc) {
-          handleSelectDoc(data.owned[0].id, currentUser.id);
+        // Automatically select the first available document if none currently selected
+        if (!activeDoc) {
+          if (data.owned && data.owned.length > 0) {
+            handleSelectDoc(data.owned[0].id, currentUser.id);
+          } else if (data.shared && data.shared.length > 0) {
+            handleSelectDoc(data.shared[0].id, currentUser.id);
+          }
         }
       });
     }
@@ -264,7 +272,11 @@ export default function App() {
           </div>
         )}
 
-        {activeDoc ? (
+        {docsLoading && !activeDoc ? (
+          <div className="empty-workspace">
+            <p>Loading documents...</p>
+          </div>
+        ) : activeDoc ? (
           <div className="document-view">
             <DocumentHeader
               document={activeDoc}

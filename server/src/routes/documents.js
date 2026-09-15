@@ -204,7 +204,7 @@ router.patch('/:id', async (req, res) => {
   }
 });
 
-// DELETE /api/documents/:id - delete document (owner only)
+// DELETE /api/documents/:id - delete document (owner) or remove from shared list (shared user)
 router.delete('/:id', async (req, res) => {
   const docId = parseInt(req.params.id, 10);
   const userId = parseInt(req.query.userId || req.body.userId, 10);
@@ -216,24 +216,39 @@ router.delete('/:id', async (req, res) => {
   try {
     const document = await prisma.document.findUnique({
       where: { id: docId },
+      include: { shares: true },
     });
 
     if (!document) {
       return res.status(404).json({ error: 'Document not found.' });
     }
 
-    if (document.ownerId !== userId) {
-      return res.status(403).json({ error: 'Only the document owner can delete this document.' });
+    // Owner deletes document permanently
+    if (document.ownerId === userId) {
+      await prisma.document.delete({
+        where: { id: docId },
+      });
+      return res.json({ message: 'Document deleted successfully ✓', type: 'deleted' });
     }
 
-    await prisma.document.delete({
-      where: { id: docId },
-    });
+    // Shared user removes document from their "Shared With Me" list
+    const isShared = document.shares.some((share) => share.userId === userId);
+    if (isShared) {
+      await prisma.documentShare.delete({
+        where: {
+          documentId_userId: {
+            documentId: docId,
+            userId,
+          },
+        },
+      });
+      return res.json({ message: 'Document removed from your shared list ✓', type: 'unshared' });
+    }
 
-    res.json({ message: 'Document deleted successfully ✓' });
+    return res.status(403).json({ error: 'You do not have access to delete or remove this document.' });
   } catch (error) {
-    console.error('Error deleting document:', error);
-    res.status(500).json({ error: 'Failed to delete document' });
+    console.error('Error removing document:', error);
+    res.status(500).json({ error: 'Failed to remove document' });
   }
 });
 

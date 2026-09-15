@@ -83,6 +83,19 @@ export default function Sidebar({
                 >
                   <span className="doc-item-title">{doc.title}</span>
                   <span className="doc-owner-badge">{doc.owner?.name}</span>
+                  {onDeleteDoc && (
+                    <button
+                      type="button"
+                      className="btn-icon-delete"
+                      title="Remove from your Shared list"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDeleteDoc(doc);
+                      }}
+                    >
+                      🗑
+                    </button>
+                  )}
                 </li>
               ))}
             </ul>

@@ -35,7 +35,7 @@ describe('Document Deletion API (Step 4)', () => {
       .delete(`/api/documents/${docToDelete.id}?userId=${nonOwner.id}`);
 
     expect(res.status).toBe(403);
-    expect(res.body.error).toBe('Only the document owner can delete this document.');
+    expect(res.body.error).toBe('You do not have access to delete or remove this document.');
   });
 
   it('DELETE /api/documents/:id - owner can successfully delete document', async () => {

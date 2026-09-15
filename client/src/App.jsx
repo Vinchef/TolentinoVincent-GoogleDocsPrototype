@@ -378,17 +378,8 @@ export default function App() {
             users={users}
             currentUser={currentUser}
             onClose={() => setIsShareModalOpen(false)}
-            onShareSuccess={async () => {
-              await fetchDocuments(currentUser.id, false);
-              try {
-                const res = await fetch(`${API_BASE}/api/documents/${activeDoc.id}?userId=${currentUser.id}`);
-                if (res.ok) {
-                  const updatedDoc = await res.json();
-                  setActiveDoc(updatedDoc);
-                }
-              } catch (err) {
-                console.error('Error refreshing active doc after share:', err);
-              }
+            onShareSuccess={() => {
+              fetchDocuments(currentUser.id);
             }}
           />
         )}

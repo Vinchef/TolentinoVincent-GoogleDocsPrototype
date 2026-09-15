@@ -4,7 +4,7 @@ import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import Toolbar from './Toolbar';
 
-export default function Editor({ content, onChange, readOnly = false }) {
+export default function Editor({ content, onChange, readOnly = false, coEditors = [] }) {
   const parseContent = (rawContent) => {
     if (!rawContent) return '';
     if (typeof rawContent === 'object') return rawContent;
@@ -54,6 +54,15 @@ export default function Editor({ content, onChange, readOnly = false }) {
     <div className="editor-container">
       {!readOnly && <Toolbar editor={editor} />}
       <div className="editor-body">
+        {coEditors.length > 0 && (
+          <div className="coeditor-cursor-bar">
+            {coEditors.map((u) => (
+              <span key={u.userId} className="coeditor-cursor-pill">
+                <span className="blinking-cursor">|</span> {u.userName}
+              </span>
+            ))}
+          </div>
+        )}
         <EditorContent editor={editor} />
       </div>
     </div>

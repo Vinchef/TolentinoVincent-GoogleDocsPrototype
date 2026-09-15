@@ -8,6 +8,7 @@ export default function DocumentHeader({
   onDelete,
   saveStatus,
   isOwner,
+  coEditors = [],
 }) {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [titleInput, setTitleInput] = useState(document?.title || '');
@@ -16,6 +17,7 @@ export default function DocumentHeader({
   useEffect(() => {
     if (document) {
       setTitleInput(document.title);
+      setIsEditingTitle(false);
     }
   }, [document]);
 
@@ -53,16 +55,28 @@ export default function DocumentHeader({
               {document?.title || 'Untitled Document'}
             </h1>
             {isOwner ? (
-              <button
-                type="button"
-                className="btn-link"
-                onClick={() => setIsEditingTitle(true)}
-              >
-                Rename
-              </button>
+              <>
+                <button
+                  type="button"
+                  className="btn-link"
+                  onClick={() => setIsEditingTitle(true)}
+                >
+                  Rename
+                </button>
+                {document?.shares && document.shares.length > 0 && (
+                  <span className="shared-with-badge">
+                    Shared with {document.shares.map((s) => s.user?.name).filter(Boolean).join(', ')}
+                  </span>
+                )}
+              </>
             ) : (
               <span className="owner-badge">
                 Shared by {document?.owner?.name || 'Owner'}
+              </span>
+            )}
+            {coEditors.length > 0 && (
+              <span className="coeditor-badge">
+                🟢 {coEditors.map((u) => u.userName).join(', ')} is editing...
               </span>
             )}
           </div>

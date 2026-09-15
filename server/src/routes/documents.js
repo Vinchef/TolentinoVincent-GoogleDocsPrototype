@@ -15,6 +15,11 @@ router.get('/', async (req, res) => {
       where: { ownerId: userId },
       include: {
         owner: { select: { id: true, name: true, email: true } },
+        shares: {
+          include: {
+            user: { select: { id: true, name: true, email: true } },
+          },
+        },
       },
       orderBy: { updatedAt: 'desc' },
     });

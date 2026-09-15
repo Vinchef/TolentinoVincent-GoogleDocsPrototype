@@ -5,6 +5,7 @@ import usersRoutes from './routes/users.js';
 import documentsRoutes from './routes/documents.js';
 import uploadRoutes from './routes/upload.js';
 import sharingRoutes from './routes/sharing.js';
+import presenceRoutes from './routes/presence.js';
 
 dotenv.config();
 
@@ -15,6 +16,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use('/api/users', usersRoutes);
+app.use('/api/documents', presenceRoutes);
 app.use('/api/documents', uploadRoutes);
 app.use('/api/documents', sharingRoutes);
 app.use('/api/documents', documentsRoutes);

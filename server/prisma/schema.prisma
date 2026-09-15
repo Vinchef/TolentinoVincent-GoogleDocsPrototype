@@ -38,3 +38,13 @@ model DocumentShare {
 
   @@unique([documentId, userId])
 }
+
+model UserPresence {
+  id         Int      @id @default(autoincrement())
+  documentId Int
+  userId     Int
+  userName   String
+  updatedAt  DateTime @updatedAt
+
+  @@unique([documentId, userId])
+}

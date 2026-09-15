@@ -13,6 +13,7 @@ export default function App() {
   const [editorContent, setEditorContent] = useState('');
   const [saveStatus, setSaveStatus] = useState('idle');
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [coEditors, setCoEditors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [docsLoading, setDocsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -23,7 +24,7 @@ export default function App() {
       .then((res) => res.json())
       .then((data) => {
         setUsers(data);
-        const savedUserId = localStorage.getItem('userId');
+        const savedUserId = sessionStorage.getItem('userId') || localStorage.getItem('userId');
         if (savedUserId) {
           const user = data.find((u) => u.id === parseInt(savedUserId, 10));
           if (user) setCurrentUser(user);
@@ -58,21 +59,46 @@ export default function App() {
 
   useEffect(() => {
     if (currentUser) {
-      fetchDocuments(currentUser.id).then((data) => {
-        // Automatically select the first available document if none currently selected
-        if (!activeDoc) {
-          if (data.owned && data.owned.length > 0) {
-            handleSelectDoc(data.owned[0].id, currentUser.id);
-          } else if (data.shared && data.shared.length > 0) {
-            handleSelectDoc(data.shared[0].id, currentUser.id);
-          }
-        }
-      });
+      fetchDocuments(currentUser.id);
     }
   }, [currentUser, fetchDocuments]);
 
+  // Real-time collaboration presence heartbeat & polling
+  useEffect(() => {
+    if (!activeDoc || !currentUser) {
+      setCoEditors([]);
+      return;
+    }
+
+    const sendPresence = async () => {
+      try {
+        await fetch(`/api/documents/${activeDoc.id}/presence`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: currentUser.id,
+            userName: currentUser.name,
+          }),
+        });
+
+        const res = await fetch(`/api/documents/${activeDoc.id}/presence?userId=${currentUser.id}`);
+        if (res.ok) {
+          const data = await res.json();
+          setCoEditors(data.coEditors || []);
+        }
+      } catch (err) {
+        console.error('Presence poll error:', err);
+      }
+    };
+
+    sendPresence();
+    const interval = setInterval(sendPresence, 2000);
+    return () => clearInterval(interval);
+  }, [activeDoc?.id, currentUser?.id, currentUser?.name]);
+
   const handleSelectUser = (user) => {
     setCurrentUser(user);
+    sessionStorage.setItem('userId', user.id);
     localStorage.setItem('userId', user.id);
     setActiveDoc(null);
     setEditorContent('');
@@ -80,6 +106,7 @@ export default function App() {
 
   const handleSwitchUser = () => {
     setCurrentUser(null);
+    sessionStorage.removeItem('userId');
     localStorage.removeItem('userId');
     setActiveDoc(null);
   };
@@ -286,6 +313,7 @@ export default function App() {
               onDelete={() => handleDeleteDoc(activeDoc)}
               saveStatus={saveStatus}
               isOwner={activeDoc.ownerId === currentUser.id}
+              coEditors={coEditors}
             />
             <Editor
               content={editorContent}
@@ -294,6 +322,7 @@ export default function App() {
                 if (saveStatus === 'saved') setSaveStatus('idle');
               }}
               readOnly={false}
+              coEditors={coEditors}
             />
           </div>
         ) : (

@@ -76,6 +76,19 @@ export default function ShareModal({ document, users = [], currentUser, onClose,
             ))}
           </select>
 
+          {document?.shares && document.shares.length > 0 && (
+            <div className="modal-shares-list" style={{ marginBottom: '1rem' }}>
+              <label className="modal-label">Currently shared with:</label>
+              <ul style={{ margin: '0.25rem 0 0 1.25rem', fontSize: '0.9rem', color: '#4b5563' }}>
+                {document.shares.map((s) => (
+                  <li key={s.id || s.userId}>
+                    <strong>{s.user?.name || 'User'}</strong> ({s.user?.email || 'No email'})
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           {statusMsg && <div className="modal-status success">{statusMsg}</div>}
           {errorMsg && <div className="modal-status error">{errorMsg}</div>}
 

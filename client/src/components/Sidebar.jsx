@@ -16,12 +16,6 @@ export default function Sidebar({
     <aside className="sidebar">
       <div className="sidebar-header">
         <h2 className="app-logo">DocuLite</h2>
-        <div className="user-profile">
-          <span className="user-name">👤 {currentUser?.name}</span>
-          <button type="button" onClick={onSwitchUser} className="btn-link btn-switch-user">
-            Switch User
-          </button>
-        </div>
       </div>
 
       <div className="sidebar-actions">
@@ -101,6 +95,15 @@ export default function Sidebar({
             </ul>
           </section>
         )}
+      </div>
+
+      <div className="sidebar-footer">
+        <div className="user-profile">
+          <span className="user-name">👤 {currentUser?.name}</span>
+          <button type="button" onClick={onSwitchUser} className="btn-link btn-switch-user">
+            Switch User
+          </button>
+        </div>
       </div>
     </aside>
   );

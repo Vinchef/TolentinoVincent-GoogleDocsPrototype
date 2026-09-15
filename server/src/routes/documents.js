@@ -204,4 +204,37 @@ router.patch('/:id', async (req, res) => {
   }
 });
 
+// DELETE /api/documents/:id - delete document (owner only)
+router.delete('/:id', async (req, res) => {
+  const docId = parseInt(req.params.id, 10);
+  const userId = parseInt(req.query.userId || req.body.userId, 10);
+
+  if (isNaN(docId) || isNaN(userId)) {
+    return res.status(400).json({ error: 'Invalid document ID or user ID' });
+  }
+
+  try {
+    const document = await prisma.document.findUnique({
+      where: { id: docId },
+    });
+
+    if (!document) {
+      return res.status(404).json({ error: 'Document not found.' });
+    }
+
+    if (document.ownerId !== userId) {
+      return res.status(403).json({ error: 'Only the document owner can delete this document.' });
+    }
+
+    await prisma.document.delete({
+      where: { id: docId },
+    });
+
+    res.json({ message: 'Document deleted successfully ✓' });
+  } catch (error) {
+    console.error('Error deleting document:', error);
+    res.status(500).json({ error: 'Failed to delete document' });
+  }
+});
+
 export default router;

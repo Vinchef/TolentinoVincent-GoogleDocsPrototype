@@ -5,6 +5,7 @@ export default function DocumentHeader({
   onSave,
   onRename,
   onOpenShare,
+  onDelete,
   saveStatus,
   isOwner,
 }) {
@@ -71,13 +72,23 @@ export default function DocumentHeader({
 
       <div className="doc-header-actions">
         {isOwner && (
-          <button
-            type="button"
-            onClick={onOpenShare}
-            className="btn-secondary btn-share"
-          >
-            🔗 Share
-          </button>
+          <>
+            <button
+              type="button"
+              onClick={onOpenShare}
+              className="btn-secondary btn-share"
+            >
+              🔗 Share
+            </button>
+            <button
+              type="button"
+              onClick={onDelete}
+              className="btn-secondary btn-delete"
+              title="Delete Document"
+            >
+              🗑 Delete
+            </button>
+          </>
         )}
         <div className="save-status">
           {saveStatus === 'saving' && <span className="status-saving">Saving...</span>}

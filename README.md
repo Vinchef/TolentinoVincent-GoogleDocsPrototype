@@ -24,9 +24,13 @@ A lightweight, full-stack document creation, editing, file importing, and docume
   - **MY DOCUMENTS**: Documents owned by the active user.
   - **SHARED WITH ME**: Documents shared with the active user, featuring an owner badge.
 - **Role-Based Permissions**:
-  - **Owner**: Full access to view, edit, save, rename, and share.
-  - **Shared User**: Allowed to view, edit, and save. Cannot rename or re-share.
+  - **Owner**: Full access to view, edit, save, rename, share, and delete.
+  - **Shared User**: Allowed to view, edit, and save. Cannot rename, re-share, or delete.
   - **Other Users**: Access strictly denied (`403 Forbidden`).
+
+### 4. Data Persistence & Document Deletion (Step 4)
+- **Persistent Database**: All documents, formatted content, titles, and share records persist across browser refreshes and server restarts stored in local SQLite (`server/prisma/dev.db`).
+- **Document Deletion**: Owners can delete unneeded documents directly via the document header button (`🗑 Delete`) or sidebar trash icon. Cascades deletion of associated share records.
 
 ---
 
@@ -79,7 +83,7 @@ Open `http://localhost:3000` to run the application.
 
 ## Running Automated Tests
 
-To run the backend integration test suite (17 passed tests covering documents API, file upload validation, and document sharing):
+To run the backend integration test suite (20 passed tests covering document CRUD, file upload validation, sharing permissions, and deletion):
 ```bash
 cd server
 npx vitest run

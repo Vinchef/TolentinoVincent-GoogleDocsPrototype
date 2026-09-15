@@ -8,6 +8,7 @@ export default function Sidebar({
   onSelectDoc,
   onCreateDoc,
   onImportDocSuccess,
+  onDeleteDoc,
   currentUser,
   onSwitchUser,
 }) {
@@ -51,6 +52,19 @@ export default function Sidebar({
                   onClick={() => onSelectDoc(doc.id)}
                 >
                   <span className="doc-item-title">{doc.title}</span>
+                  {onDeleteDoc && (
+                    <button
+                      type="button"
+                      className="btn-icon-delete"
+                      title="Delete Document"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDeleteDoc(doc);
+                      }}
+                    >
+                      🗑
+                    </button>
+                  )}
                 </li>
               ))}
             </ul>

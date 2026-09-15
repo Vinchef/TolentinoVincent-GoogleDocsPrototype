@@ -184,6 +184,34 @@ export default function App() {
     setSaveStatus('idle');
   };
 
+  const handleDeleteDoc = async (docToDelete) => {
+    if (!docToDelete || !currentUser) return;
+
+    const confirmed = window.confirm(`Are you sure you want to delete "${docToDelete.title}"?`);
+    if (!confirmed) return;
+
+    try {
+      const res = await fetch(`/api/documents/${docToDelete.id}?userId=${currentUser.id}`, {
+        method: 'DELETE',
+      });
+
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || 'Failed to delete document');
+      }
+
+      if (activeDoc?.id === docToDelete.id) {
+        setActiveDoc(null);
+        setEditorContent('');
+      }
+
+      await fetchDocuments(currentUser.id);
+    } catch (err) {
+      console.error(err);
+      setError(err.message);
+    }
+  };
+
   // Login Screen view
   if (!currentUser) {
     return (
@@ -223,6 +251,7 @@ export default function App() {
         onSelectDoc={(docId) => handleSelectDoc(docId)}
         onCreateDoc={handleCreateDoc}
         onImportDocSuccess={handleImportDocSuccess}
+        onDeleteDoc={handleDeleteDoc}
         currentUser={currentUser}
         onSwitchUser={handleSwitchUser}
       />
@@ -242,6 +271,7 @@ export default function App() {
               onSave={handleSaveDoc}
               onRename={handleRenameDoc}
               onOpenShare={() => setIsShareModalOpen(true)}
+              onDelete={() => handleDeleteDoc(activeDoc)}
               saveStatus={saveStatus}
               isOwner={activeDoc.ownerId === currentUser.id}
             />

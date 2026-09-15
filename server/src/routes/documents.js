@@ -30,6 +30,11 @@ router.get('/', async (req, res) => {
         document: {
           include: {
             owner: { select: { id: true, name: true, email: true } },
+            shares: {
+              include: {
+                user: { select: { id: true, name: true, email: true } },
+              },
+            },
           },
         },
       },

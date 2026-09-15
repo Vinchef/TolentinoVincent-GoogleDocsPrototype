@@ -42,6 +42,9 @@ export default function ShareModal({ document, users = [], currentUser, onClose,
       if (onShareSuccess) {
         onShareSuccess();
       }
+      setTimeout(() => {
+        if (onClose) onClose();
+      }, 1200);
     } catch (err) {
       console.error(err);
       setErrorMsg(err.message);

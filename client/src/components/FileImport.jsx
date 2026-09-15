@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { API_BASE } from '../config';
 
 export default function FileImport({ onImportSuccess, ownerId }) {
   const [importing, setImporting] = useState(false);
@@ -35,7 +36,7 @@ export default function FileImport({ onImportSuccess, ownerId }) {
     setErrorMsg(null);
 
     try {
-      const res = await fetch('/api/documents/import', {
+      const res = await fetch(`${API_BASE}/api/documents/import`, {
         method: 'POST',
         body: formData,
       });

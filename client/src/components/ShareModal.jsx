@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { API_BASE } from '../config';
 
 export default function ShareModal({ document, users = [], currentUser, onClose, onShareSuccess }) {
   const [selectedUserId, setSelectedUserId] = useState('');
@@ -21,7 +22,7 @@ export default function ShareModal({ document, users = [], currentUser, onClose,
     setErrorMsg(null);
 
     try {
-      const res = await fetch(`/api/documents/${document.id}/share`, {
+      const res = await fetch(`${API_BASE}/api/documents/${document.id}/share`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

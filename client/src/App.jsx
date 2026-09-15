@@ -3,6 +3,7 @@ import Sidebar from './components/Sidebar';
 import DocumentHeader from './components/DocumentHeader';
 import Editor from './components/Editor';
 import ShareModal from './components/ShareModal';
+import { API_BASE } from './config';
 
 export default function App() {
   const [users, setUsers] = useState([]);
@@ -20,7 +21,7 @@ export default function App() {
 
   // Fetch seeded users on mount
   useEffect(() => {
-    fetch('/api/users')
+    fetch(`${API_BASE}/api/users`)
       .then((res) => res.json())
       .then((data) => {
         setUsers(data);
@@ -42,7 +43,7 @@ export default function App() {
   const fetchDocuments = useCallback(async (userId) => {
     setDocsLoading(true);
     try {
-      const res = await fetch(`/api/documents?userId=${userId}`);
+      const res = await fetch(`${API_BASE}/api/documents?userId=${userId}`);
       if (!res.ok) throw new Error('Failed to fetch documents');
       const data = await res.json();
       setOwnedDocs(data.owned || []);
@@ -72,7 +73,7 @@ export default function App() {
 
     const sendPresence = async () => {
       try {
-        await fetch(`/api/documents/${activeDoc.id}/presence`, {
+        await fetch(`${API_BASE}/api/documents/${activeDoc.id}/presence`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -81,7 +82,7 @@ export default function App() {
           }),
         });
 
-        const res = await fetch(`/api/documents/${activeDoc.id}/presence?userId=${currentUser.id}`);
+        const res = await fetch(`${API_BASE}/api/documents/${activeDoc.id}/presence?userId=${currentUser.id}`);
         if (res.ok) {
           const data = await res.json();
           setCoEditors(data.coEditors || []);
@@ -116,7 +117,7 @@ export default function App() {
     if (!userId) return;
 
     try {
-      const res = await fetch(`/api/documents/${docId}?userId=${userId}`);
+      const res = await fetch(`${API_BASE}/api/documents/${docId}?userId=${userId}`);
       if (!res.ok) {
         const errData = await res.json();
         throw new Error(errData.error || 'Failed to open document');
@@ -136,7 +137,7 @@ export default function App() {
     if (!currentUser) return;
 
     try {
-      const res = await fetch('/api/documents', {
+      const res = await fetch(`${API_BASE}/api/documents`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -163,7 +164,7 @@ export default function App() {
 
     setSaveStatus('saving');
     try {
-      const res = await fetch(`/api/documents/${activeDoc.id}`, {
+      const res = await fetch(`${API_BASE}/api/documents/${activeDoc.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -188,7 +189,7 @@ export default function App() {
     if (!activeDoc || !currentUser) return;
 
     try {
-      const res = await fetch(`/api/documents/${activeDoc.id}`, {
+      const res = await fetch(`${API_BASE}/api/documents/${activeDoc.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -226,7 +227,7 @@ export default function App() {
     if (!confirmed) return;
 
     try {
-      const res = await fetch(`/api/documents/${docToDelete.id}?userId=${currentUser.id}`, {
+      const res = await fetch(`${API_BASE}/api/documents/${docToDelete.id}?userId=${currentUser.id}`, {
         method: 'DELETE',
       });
 

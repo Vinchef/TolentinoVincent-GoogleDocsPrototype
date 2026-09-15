@@ -19,24 +19,44 @@ export default function App() {
   const [docsLoading, setDocsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch seeded users on mount
+  // Fetch seeded users on mount with automatic retry for Render cold starts
   useEffect(() => {
-    fetch(`${API_BASE}/api/users`)
-      .then((res) => res.json())
-      .then((data) => {
+    let attempts = 0;
+    let cancelled = false;
+
+    const loadUsers = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/users`);
+        if (!res.ok) throw new Error('Server returned error status');
+        const data = await res.json();
+        if (cancelled) return;
+
         setUsers(data);
+        setError(null);
         const savedUserId = sessionStorage.getItem('userId') || localStorage.getItem('userId');
         if (savedUserId) {
           const user = data.find((u) => u.id === parseInt(savedUserId, 10));
           if (user) setCurrentUser(user);
         }
         setLoading(false);
-      })
-      .catch((err) => {
+      } catch (err) {
         console.error('Failed to load users:', err);
-        setError('Failed to connect to backend server');
-        setLoading(false);
-      });
+        attempts += 1;
+        if (attempts < 6 && !cancelled) {
+          setError(`Connecting to server... (Waking up backend, attempt ${attempts}/5)`);
+          setTimeout(loadUsers, 3000);
+        } else if (!cancelled) {
+          setError('Failed to connect to backend server. Please check backend status and refresh.');
+          setLoading(false);
+        }
+      }
+    };
+
+    loadUsers();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   // Fetch documents for active user

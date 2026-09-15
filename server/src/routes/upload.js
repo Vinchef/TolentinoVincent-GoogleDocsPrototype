@@ -1,6 +1,7 @@
 import express from 'express';
 import multer from 'multer';
 import path from 'path';
+import mammoth from 'mammoth';
 import prisma from '../prisma.js';
 
 const router = express.Router();
@@ -12,10 +13,10 @@ const upload = multer({
   limits: { fileSize: 2 * 1024 * 1024 }, // 2MB limit
   fileFilter: (req, file, cb) => {
     const ext = path.extname(file.originalname).toLowerCase();
-    if (ext === '.txt' || ext === '.md') {
+    if (ext === '.txt' || ext === '.md' || ext === '.docx') {
       cb(null, true);
     } else {
-      cb(new Error('Unsupported file type. Please upload a .txt or .md file.'));
+      cb(new Error('Unsupported file type. Please upload a .txt, .md, or .docx file.'));
     }
   },
 });
@@ -23,7 +24,6 @@ const upload = multer({
 // Helper function to format filename into clean document title
 function formatTitle(filename) {
   const nameWithoutExt = path.basename(filename, path.extname(filename));
-  // Replace hyphens and underscores with spaces and capitalize words
   return nameWithoutExt
     .replace(/[-_]+/g, ' ')
     .replace(/\s+/g, ' ')
@@ -99,7 +99,16 @@ router.post('/import', (req, res) => {
         return res.status(400).json({ error: 'Valid owner user not found.' });
       }
 
-      const fileText = req.file.buffer.toString('utf-8');
+      const ext = path.extname(req.file.originalname).toLowerCase();
+      let fileText = '';
+
+      if (ext === '.docx') {
+        const mammothResult = await mammoth.extractRawText({ buffer: req.file.buffer });
+        fileText = mammothResult.value || '';
+      } else {
+        fileText = req.file.buffer.toString('utf-8');
+      }
+
       const title = formatTitle(req.file.originalname) || 'Imported Document';
       const tiptapContent = textToTiptapJson(fileText);
 

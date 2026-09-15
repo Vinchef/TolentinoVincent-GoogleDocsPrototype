@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Sidebar from './components/Sidebar';
 import DocumentHeader from './components/DocumentHeader';
 import Editor from './components/Editor';
+import ShareModal from './components/ShareModal';
 
 export default function App() {
   const [users, setUsers] = useState([]);
@@ -11,6 +12,7 @@ export default function App() {
   const [activeDoc, setActiveDoc] = useState(null);
   const [editorContent, setEditorContent] = useState('');
   const [saveStatus, setSaveStatus] = useState('idle');
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -239,6 +241,7 @@ export default function App() {
               document={activeDoc}
               onSave={handleSaveDoc}
               onRename={handleRenameDoc}
+              onOpenShare={() => setIsShareModalOpen(true)}
               saveStatus={saveStatus}
               isOwner={activeDoc.ownerId === currentUser.id}
             />
@@ -258,6 +261,18 @@ export default function App() {
               + New Document
             </button>
           </div>
+        )}
+
+        {isShareModalOpen && activeDoc && (
+          <ShareModal
+            document={activeDoc}
+            users={users}
+            currentUser={currentUser}
+            onClose={() => setIsShareModalOpen(false)}
+            onShareSuccess={() => {
+              fetchDocuments(currentUser.id);
+            }}
+          />
         )}
       </main>
     </div>

@@ -4,6 +4,7 @@ export default function DocumentHeader({
   document,
   onSave,
   onRename,
+  onOpenShare,
   saveStatus,
   isOwner,
 }) {
@@ -50,7 +51,7 @@ export default function DocumentHeader({
             <h1 className="doc-title" onClick={() => isOwner && setIsEditingTitle(true)}>
               {document?.title || 'Untitled Document'}
             </h1>
-            {isOwner && (
+            {isOwner ? (
               <button
                 type="button"
                 className="btn-link"
@@ -58,6 +59,10 @@ export default function DocumentHeader({
               >
                 Rename
               </button>
+            ) : (
+              <span className="owner-badge">
+                Shared by {document?.owner?.name || 'Owner'}
+              </span>
             )}
           </div>
         )}
@@ -65,6 +70,15 @@ export default function DocumentHeader({
       </div>
 
       <div className="doc-header-actions">
+        {isOwner && (
+          <button
+            type="button"
+            onClick={onOpenShare}
+            className="btn-secondary btn-share"
+          >
+            🔗 Share
+          </button>
+        )}
         <div className="save-status">
           {saveStatus === 'saving' && <span className="status-saving">Saving...</span>}
           {saveStatus === 'saved' && <span className="status-saved">Saved ✓</span>}

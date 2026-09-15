@@ -12,8 +12,8 @@ export default function FileImport({ onImportSuccess, ownerId }) {
 
     // Client-side quick check
     const ext = file.name.slice(file.name.lastIndexOf('.')).toLowerCase();
-    if (ext !== '.txt' && ext !== '.md') {
-      setErrorMsg('Unsupported file type. Please upload a .txt or .md file.');
+    if (ext !== '.txt' && ext !== '.md' && ext !== '.docx') {
+      setErrorMsg('Unsupported file type. Please upload a .txt, .md, or .docx file.');
       setStatusMsg(null);
       if (fileInputRef.current) fileInputRef.current.value = '';
       return;
@@ -68,7 +68,7 @@ export default function FileImport({ onImportSuccess, ownerId }) {
         type="file"
         ref={fileInputRef}
         onChange={handleFileChange}
-        accept=".txt,.md"
+        accept=".txt,.md,.docx"
         style={{ display: 'none' }}
       />
       <button
@@ -77,7 +77,7 @@ export default function FileImport({ onImportSuccess, ownerId }) {
         onClick={() => fileInputRef.current?.click()}
         disabled={importing}
       >
-        {importing ? 'Importing...' : '📁 Import (.txt, .md)'}
+        {importing ? 'Importing...' : '📁 Import (.txt, .md, .docx)'}
       </button>
 
       {statusMsg && <div className="import-status success">{statusMsg}</div>}

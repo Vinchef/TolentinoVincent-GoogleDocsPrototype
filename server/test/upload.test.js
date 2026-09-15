@@ -46,7 +46,7 @@ describe('File Upload / Document Import API (Step 2)', () => {
       .attach('file', Buffer.from('fake pdf data'), 'document.pdf');
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toBe('Unsupported file type. Please upload a .txt or .md file.');
+    expect(res.body.error).toBe('Unsupported file type. Please upload a .txt, .md, or .docx file.');
   });
 
   it('POST /api/documents/import - reject file exceeding 2 MB size limit', async () => {

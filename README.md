@@ -12,13 +12,21 @@ A lightweight, full-stack document creation, editing, file importing, and docume
 - **Reopen & Account Switch**: Seamless user switching (mock authentication with Vincent and Alex) and persistent document state loading.
 
 ### 2. File Upload / Document Import (Step 2)
-- **Supported File Types**: `.txt` and `.md` files.
+- **Supported File Types**: `.txt`, `.md`, and `.docx` (Word Documents via `mammoth`).
 - **File Size Limit**: Maximum **2 MB** per uploaded file.
-- **Automatic Conversion**: Converts text paragraphs and markdown headings (`#`, `##`) into editable Tiptap document structures.
-- **Title Formatting**: Formats file names into clean document titles (e.g., `meeting-notes.txt` $\rightarrow$ `Meeting Notes`).
+- **Automatic Conversion**: Converts text paragraphs, markdown headings (`#`, `##`), and Word document text into editable Tiptap document structures.
+- **Title Formatting**: Formats file names into clean document titles (e.g., `meeting-notes.docx` $\rightarrow$ `Meeting Notes`).
 - **Validation**: Enforces strict MIME/extension and file size limits with user feedback in the UI.
 
-> *Note: DOCX and PDF parsing are intentionally excluded in this version to maintain a clean, lightweight architecture.*
+### 3. Document Sharing & Access Control (Step 3)
+- **Share Modal**: Document owners can share documents with other users (e.g., Vincent sharing with Alex) via a simple Share modal.
+- **Sidebar Organization**: Clear visual separation between:
+  - **MY DOCUMENTS**: Documents owned by the active user.
+  - **SHARED WITH ME**: Documents shared with the active user, featuring an owner badge.
+- **Role-Based Permissions**:
+  - **Owner**: Full access to view, edit, save, rename, and share.
+  - **Shared User**: Allowed to view, edit, and save. Cannot rename or re-share.
+  - **Other Users**: Access strictly denied (`403 Forbidden`).
 
 ---
 
@@ -32,7 +40,7 @@ A lightweight, full-stack document creation, editing, file importing, and docume
 ### Backend (`/server`)
 - **Node.js** + **Express**
 - **Prisma ORM** + **SQLite**
-- **Multer** (for multipart file uploads)
+- **Multer** & **Mammoth** (for multipart file uploads & Word doc parsing)
 
 ### Testing
 - **Vitest** + **Supertest**
@@ -71,7 +79,7 @@ Open `http://localhost:3000` to run the application.
 
 ## Running Automated Tests
 
-To run the backend integration test suite (covering documents API and file upload validation):
+To run the backend integration test suite (17 passed tests covering documents API, file upload validation, and document sharing):
 ```bash
 cd server
 npx vitest run

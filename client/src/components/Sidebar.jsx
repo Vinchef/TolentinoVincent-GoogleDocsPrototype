@@ -1,4 +1,5 @@
 import React from 'react';
+import FileImport from './FileImport';
 
 export default function Sidebar({
   ownedDocs = [],
@@ -6,6 +7,7 @@ export default function Sidebar({
   activeDocId,
   onSelectDoc,
   onCreateDoc,
+  onImportDocSuccess,
   currentUser,
   onSwitchUser,
 }) {
@@ -29,6 +31,10 @@ export default function Sidebar({
         >
           + New Document
         </button>
+        <FileImport
+          ownerId={currentUser?.id}
+          onImportSuccess={onImportDocSuccess}
+        />
       </div>
 
       <div className="sidebar-sections">

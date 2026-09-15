@@ -9,25 +9,24 @@ describe('Document Creation, Editing, Renaming & Persistence API', () => {
   let testDocId;
 
   beforeAll(async () => {
-    // Clean and seed users
-    await prisma.documentShare.deleteMany();
-    await prisma.document.deleteMany();
-    await prisma.user.deleteMany();
-
-    vincent = await prisma.user.create({
-      data: { name: 'Vincent', email: 'vincent@example.com' },
+    vincent = await prisma.user.upsert({
+      where: { email: 'vincent@example.com' },
+      update: {},
+      create: { name: 'Vincent', email: 'vincent@example.com' },
     });
 
-    alex = await prisma.user.create({
-      data: { name: 'Alex', email: 'alex@example.com' },
+    alex = await prisma.user.upsert({
+      where: { email: 'alex@example.com' },
+      update: {},
+      create: { name: 'Alex', email: 'alex@example.com' },
     });
   });
 
   it('GET /api/users should return seeded users', async () => {
     const res = await request(app).get('/api/users');
     expect(res.status).toBe(200);
-    expect(res.body).toHaveLength(2);
-    expect(res.body[0].name).toBe('Vincent');
+    expect(res.body.length).toBeGreaterThanOrEqual(2);
+    expect(res.body.some((u) => u.name === 'Vincent')).toBe(true);
   });
 
   it('POST /api/documents should create a new document', async () => {

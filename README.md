@@ -2,14 +2,25 @@
 
 A lightweight, full-stack document creation, editing, file importing, and document sharing prototype built with React, Express, Prisma, and Tiptap.
 
-## Features (Step 1 Completed)
+## Completed Features
 
+### 1. Document Creation & Rich Text Editing (Step 1)
 - **Create New Documents**: Instantly spawn new documents with default title & content.
-- **Rich Text Editing**: Formatting toolbar with Bold, Italic, Underline, H1 & H2 Headings, Bullet Lists, and Numbered Lists powered by Tiptap.
+- **Rich Text Formatting**: Formatting toolbar supporting Bold, Italic, Underline, Headings (H1 & H2), Bullet Lists, and Numbered Lists powered by Tiptap.
 - **Rename Documents**: Click to inline edit document titles (owner-only).
 - **Persistent Storage**: Save document content and metadata in local SQLite database via Prisma ORM.
-- **Reopen & Switch**: Seamless user switching (mock authentication with Vincent and Alex) and persistent document loading.
-- **Automated Testing**: Comprehensive integration API test suite with Vitest & Supertest.
+- **Reopen & Account Switch**: Seamless user switching (mock authentication with Vincent and Alex) and persistent document state loading.
+
+### 2. File Upload / Document Import (Step 2)
+- **Supported File Types**: `.txt` and `.md` files.
+- **File Size Limit**: Maximum **2 MB** per uploaded file.
+- **Automatic Conversion**: Converts text paragraphs and markdown headings (`#`, `##`) into editable Tiptap document structures.
+- **Title Formatting**: Formats file names into clean document titles (e.g., `meeting-notes.txt` $\rightarrow$ `Meeting Notes`).
+- **Validation**: Enforces strict MIME/extension and file size limits with user feedback in the UI.
+
+> *Note: DOCX and PDF parsing are intentionally excluded in this version to maintain a clean, lightweight architecture.*
+
+---
 
 ## Tech Stack
 
@@ -21,7 +32,7 @@ A lightweight, full-stack document creation, editing, file importing, and docume
 ### Backend (`/server`)
 - **Node.js** + **Express**
 - **Prisma ORM** + **SQLite**
-- **Multer** (for file uploads)
+- **Multer** (for multipart file uploads)
 
 ### Testing
 - **Vitest** + **Supertest**
@@ -32,7 +43,7 @@ A lightweight, full-stack document creation, editing, file importing, and docume
 
 ### 1. Clone the repository
 ```bash
-git clone <your-repository-url>
+git clone https://github.com/Vinchef/TolentinoVincent-GoogleDocsPrototype.git
 cd TolentinoVincent-GoogleDocsPrototype
 ```
 
@@ -60,9 +71,8 @@ Open `http://localhost:3000` to run the application.
 
 ## Running Automated Tests
 
-To run the backend integration test suite:
+To run the backend integration test suite (covering documents API and file upload validation):
 ```bash
 cd server
 npx vitest run
 ```
-Hi

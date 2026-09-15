@@ -174,6 +174,14 @@ export default function App() {
     }
   };
 
+  const handleImportDocSuccess = async (newDoc) => {
+    if (!currentUser) return;
+    await fetchDocuments(currentUser.id);
+    setActiveDoc(newDoc);
+    setEditorContent(newDoc.content);
+    setSaveStatus('idle');
+  };
+
   // Login Screen view
   if (!currentUser) {
     return (
@@ -212,6 +220,7 @@ export default function App() {
         activeDocId={activeDoc?.id}
         onSelectDoc={(docId) => handleSelectDoc(docId)}
         onCreateDoc={handleCreateDoc}
+        onImportDocSuccess={handleImportDocSuccess}
         currentUser={currentUser}
         onSwitchUser={handleSwitchUser}
       />

@@ -40,8 +40,8 @@ export default function App() {
   }, []);
 
   // Fetch documents for active user
-  const fetchDocuments = useCallback(async (userId) => {
-    setDocsLoading(true);
+  const fetchDocuments = useCallback(async (userId, showLoading = true) => {
+    if (showLoading) setDocsLoading(true);
     try {
       const res = await fetch(`${API_BASE}/api/documents?userId=${userId}`);
       if (!res.ok) throw new Error('Failed to fetch documents');
@@ -51,27 +51,34 @@ export default function App() {
       return data;
     } catch (err) {
       console.error(err);
-      setError('Could not load documents');
+      if (showLoading) setError('Could not load documents');
       return { owned: [], shared: [] };
     } finally {
-      setDocsLoading(false);
+      if (showLoading) setDocsLoading(false);
     }
   }, []);
 
+  // Poll for document list updates (auto-updates SHARED WITH ME list without needing page refresh)
   useEffect(() => {
-    if (currentUser) {
-      fetchDocuments(currentUser.id);
-    }
+    if (!currentUser) return;
+
+    fetchDocuments(currentUser.id, true);
+
+    const interval = setInterval(() => {
+      fetchDocuments(currentUser.id, false);
+    }, 3000);
+
+    return () => clearInterval(interval);
   }, [currentUser, fetchDocuments]);
 
-  // Real-time collaboration presence heartbeat & polling
+  // Real-time collaboration presence heartbeat & live document content sync
   useEffect(() => {
     if (!activeDoc || !currentUser) {
       setCoEditors([]);
       return;
     }
 
-    const sendPresence = async () => {
+    const sendPresenceAndSync = async () => {
       try {
         await fetch(`${API_BASE}/api/documents/${activeDoc.id}/presence`, {
           method: 'POST',
@@ -82,20 +89,30 @@ export default function App() {
           }),
         });
 
-        const res = await fetch(`${API_BASE}/api/documents/${activeDoc.id}/presence?userId=${currentUser.id}`);
-        if (res.ok) {
-          const data = await res.json();
-          setCoEditors(data.coEditors || []);
+        const presenceRes = await fetch(`${API_BASE}/api/documents/${activeDoc.id}/presence?userId=${currentUser.id}`);
+        if (presenceRes.ok) {
+          const presenceData = await presenceRes.json();
+          setCoEditors(presenceData.coEditors || []);
+        }
+
+        // Live document sync for active document
+        const docRes = await fetch(`${API_BASE}/api/documents/${activeDoc.id}?userId=${currentUser.id}`);
+        if (docRes.ok) {
+          const freshDoc = await docRes.json();
+          if (freshDoc.content && freshDoc.content !== activeDoc.content) {
+            setActiveDoc(freshDoc);
+            setEditorContent(freshDoc.content);
+          }
         }
       } catch (err) {
         console.error('Presence poll error:', err);
       }
     };
 
-    sendPresence();
-    const interval = setInterval(sendPresence, 2000);
+    sendPresenceAndSync();
+    const interval = setInterval(sendPresenceAndSync, 2000);
     return () => clearInterval(interval);
-  }, [activeDoc?.id, currentUser?.id, currentUser?.name]);
+  }, [activeDoc?.id, activeDoc?.content, currentUser?.id, currentUser?.name]);
 
   const handleSelectUser = (user) => {
     setCurrentUser(user);

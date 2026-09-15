@@ -33,34 +33,87 @@ function formatTitle(filename) {
     .join(' ');
 }
 
-// Helper to convert plain text / markdown text to Tiptap JSON
+// Helper to convert plain text / markdown text to valid Tiptap JSON
 function textToTiptapJson(text) {
+  if (!text || typeof text !== 'string') {
+    return JSON.stringify({
+      type: 'doc',
+      content: [{ type: 'paragraph' }],
+    });
+  }
+
   const lines = text.split(/\r?\n/);
   const contentNodes = [];
+  let currentList = null;
+
+  function flushList() {
+    if (currentList) {
+      contentNodes.push({
+        type: currentList.type,
+        content: currentList.items,
+      });
+      currentList = null;
+    }
+  }
 
   for (const line of lines) {
     const trimmed = line.trim();
-    if (!trimmed) continue;
+    if (!trimmed) {
+      flushList();
+      continue;
+    }
 
     if (trimmed.startsWith('# ')) {
+      flushList();
       contentNodes.push({
         type: 'heading',
         attrs: { level: 1 },
         content: [{ type: 'text', text: trimmed.slice(2).trim() }],
       });
     } else if (trimmed.startsWith('## ')) {
+      flushList();
       contentNodes.push({
         type: 'heading',
         attrs: { level: 2 },
         content: [{ type: 'text', text: trimmed.slice(3).trim() }],
       });
+    } else if (trimmed.startsWith('### ')) {
+      flushList();
+      contentNodes.push({
+        type: 'heading',
+        attrs: { level: 2 },
+        content: [{ type: 'text', text: trimmed.slice(4).trim() }],
+      });
+    } else if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+      const itemText = trimmed.slice(2).trim();
+      if (!currentList || currentList.type !== 'bulletList') {
+        flushList();
+        currentList = { type: 'bulletList', items: [] };
+      }
+      currentList.items.push({
+        type: 'listItem',
+        content: [{ type: 'paragraph', content: [{ type: 'text', text: itemText }] }],
+      });
+    } else if (/^\d+\.\s/.test(trimmed)) {
+      const itemText = trimmed.replace(/^\d+\.\s/, '').trim();
+      if (!currentList || currentList.type !== 'orderedList') {
+        flushList();
+        currentList = { type: 'orderedList', items: [] };
+      }
+      currentList.items.push({
+        type: 'listItem',
+        content: [{ type: 'paragraph', content: [{ type: 'text', text: itemText }] }],
+      });
     } else {
+      flushList();
       contentNodes.push({
         type: 'paragraph',
         content: [{ type: 'text', text: line }],
       });
     }
   }
+
+  flushList();
 
   if (contentNodes.length === 0) {
     contentNodes.push({ type: 'paragraph' });

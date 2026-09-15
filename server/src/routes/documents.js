@@ -147,9 +147,7 @@ router.put('/:id', async (req, res) => {
     }
 
     const updateData = {};
-    if (content !== undefined) {
-      updateData.content = typeof content === 'object' ? JSON.stringify(content) : content;
-    }
+    if (content !== undefined) updateData.content = content;
     if (title !== undefined) {
       if (!title || title.trim() === '') {
         return res.status(400).json({ error: 'Document title cannot be empty.' });

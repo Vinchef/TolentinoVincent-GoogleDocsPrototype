@@ -4,6 +4,6 @@
   "private": true,
   "scripts": {
     "postinstall": "cd server && npm install && cd ../client && npm install",
-    "build": "cd client && npm run build"
+    "build": "cd server && npx prisma db push --accept-data-loss && node prisma/seed.js && cd ../client && npm run build"
   }
 }
